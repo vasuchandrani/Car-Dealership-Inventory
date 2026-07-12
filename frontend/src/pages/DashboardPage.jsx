@@ -11,17 +11,57 @@ const DashboardPage = () => {
   const [error, setError] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   
+  // Filter states
+  const [filters, setFilters] = useState({
+    make: '',
+    model: '',
+    category: '',
+    minPrice: '',
+    maxPrice: '',
+  });
+
+  const [activeFilters, setActiveFilters] = useState({
+    make: '',
+    model: '',
+    category: '',
+    minPrice: '',
+    maxPrice: '',
+  });
+
   // Pagination state
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 8;
 
-  const fetchVehicles = async (pageNum) => {
+  // Check if any filters are active
+  const hasActiveFilters = () => {
+    return Object.values(activeFilters).some(value => value !== '');
+  };
+
+  const fetchVehicles = async (pageNum, currentFilters) => {
     try {
       setLoading(true);
       setError('');
-      const data = await vehicleApi.getAllVehicles(pageNum, pageSize);
+      
+      let data;
+      // If we have active filters, call search; otherwise, call get all
+      const isFiltered = Object.values(currentFilters).some(v => v !== '');
+      
+      if (isFiltered) {
+        // Prepare clean filters mapping (omit empty strings)
+        const queryFilters = {};
+        if (currentFilters.make) queryFilters.make = currentFilters.make;
+        if (currentFilters.model) queryFilters.model = currentFilters.model;
+        if (currentFilters.category) queryFilters.category = currentFilters.category;
+        if (currentFilters.minPrice) queryFilters.minPrice = currentFilters.minPrice;
+        if (currentFilters.maxPrice) queryFilters.maxPrice = currentFilters.maxPrice;
+
+        data = await vehicleApi.searchVehicles(queryFilters, pageNum, pageSize);
+      } else {
+        data = await vehicleApi.getAllVehicles(pageNum, pageSize);
+      }
+
       if (data.success) {
         setVehicles(data.data.content || []);
         setTotalPages(data.data.totalPages || 0);
@@ -37,8 +77,35 @@ const DashboardPage = () => {
   };
 
   useEffect(() => {
-    fetchVehicles(page);
-  }, [page]);
+    fetchVehicles(page, activeFilters);
+  }, [page, activeFilters]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setPage(0);
+    setActiveFilters({ ...filters });
+  };
+
+  const handleResetFilters = () => {
+    const reset = {
+      make: '',
+      model: '',
+      category: '',
+      minPrice: '',
+      maxPrice: '',
+    };
+    setFilters(reset);
+    setPage(0);
+    setActiveFilters(reset);
+  };
 
   const handlePrevPage = () => {
     if (page > 0) setPage(page - 1);
@@ -61,8 +128,9 @@ const DashboardPage = () => {
       <Navbar />
 
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 flex-grow">
+        
         {/* Header Summary */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">Showroom Collection</h1>
             <p className="text-slate-500 text-sm mt-1">
@@ -77,6 +145,115 @@ const DashboardPage = () => {
             </span>
           </div>
         </div>
+
+        {/* Search & Filter Panel */}
+        <form onSubmit={handleSearchSubmit} className="bg-white border border-slate-200/80 rounded-2xl p-6 mb-8 shadow-sm space-y-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-2">Search Catalog Filters</h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Make Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1" htmlFor="make">
+                Brand / Make
+              </label>
+              <input
+                id="make"
+                name="make"
+                type="text"
+                value={filters.make}
+                onChange={handleFilterChange}
+                placeholder="e.g. Toyota"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition"
+              />
+            </div>
+
+            {/* Model Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1" htmlFor="model">
+                Model Name
+              </label>
+              <input
+                id="model"
+                name="model"
+                type="text"
+                value={filters.model}
+                onChange={handleFilterChange}
+                placeholder="e.g. Camry"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition"
+              />
+            </div>
+
+            {/* Category Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1" htmlFor="category">
+                Vehicle Category
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={filters.category}
+                onChange={handleFilterChange}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition cursor-pointer"
+              >
+                <option value="">All Categories</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Coupe">Coupe</option>
+                <option value="Hatchback">Hatchback</option>
+                <option value="Truck">Truck</option>
+                <option value="EV">Electric Vehicle (EV)</option>
+              </select>
+            </div>
+
+            {/* Min Price Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1" htmlFor="minPrice">
+                Min Price (INR)
+              </label>
+              <input
+                id="minPrice"
+                name="minPrice"
+                type="number"
+                value={filters.minPrice}
+                onChange={handleFilterChange}
+                placeholder="Min"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition"
+              />
+            </div>
+
+            {/* Max Price Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1" htmlFor="maxPrice">
+                Max Price (INR)
+              </label>
+              <input
+                id="maxPrice"
+                name="maxPrice"
+                type="number"
+                value={filters.maxPrice}
+                onChange={handleFilterChange}
+                placeholder="Max"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-5 py-2 rounded-xl text-sm transition duration-200 cursor-pointer"
+            >
+              Reset Filters
+            </button>
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2 rounded-xl text-sm shadow-md hover:shadow-indigo-600/10 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+            >
+              Search
+            </button>
+          </div>
+        </form>
 
         {/* Error Alert */}
         {error && (
@@ -96,20 +273,33 @@ const DashboardPage = () => {
           </div>
         ) : vehicles.length === 0 ? (
           /* Empty state */
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-16 text-center shadow-sm max-w-lg mx-auto mt-12">
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-16 text-center shadow-sm max-w-lg mx-auto mt-6">
             <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-6 text-slate-400">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No Vehicles Found</h3>
-            <p className="text-slate-500 text-sm mb-6">The showroom catalog is currently empty or undergoing maintenance.</p>
-            <button
-              onClick={() => fetchVehicles(0)}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-sm transition duration-200 cursor-pointer"
-            >
-              Reload Catalog
-            </button>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">No Vehicles Matched</h3>
+            <p className="text-slate-500 text-sm mb-6">
+              {hasActiveFilters() 
+                ? "Try relaxing your search filter terms or reset the criteria to see all vehicles." 
+                : "The showroom catalog is currently empty."}
+            </p>
+            {hasActiveFilters() ? (
+              <button
+                onClick={handleResetFilters}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-sm transition duration-200 cursor-pointer"
+              >
+                Reset Search Filters
+              </button>
+            ) : (
+              <button
+                onClick={() => fetchVehicles(0, activeFilters)}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-sm transition duration-200 cursor-pointer"
+              >
+                Reload Catalog
+              </button>
+            )}
           </div>
         ) : (
           <>
