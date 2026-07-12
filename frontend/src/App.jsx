@@ -8,6 +8,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -27,6 +28,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['ROLE_USER', 'ROLE_ADMIN']}>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_USER', 'ROLE_ADMIN']}>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

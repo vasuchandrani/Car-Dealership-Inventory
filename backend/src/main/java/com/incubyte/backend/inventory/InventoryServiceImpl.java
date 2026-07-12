@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class InventoryServiceImpl implements InventoryService {
@@ -95,5 +98,25 @@ public class InventoryServiceImpl implements InventoryService {
                 vehicle.getModel(),
                 vehicle.getQuantity()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PurchaseResponse> getUserPurchases(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
+
+        return purchaseRepository.findByUserId(user.getId()).stream()
+                .map(purchase -> new PurchaseResponse(
+                        purchase.getId(),
+                        purchase.getVehicle().getId(),
+                        purchase.getVehicle().getMake(),
+                        purchase.getVehicle().getModel(),
+                        purchase.getQuantity(),
+                        purchase.getPurchasePrice(),
+                        user.getEmail(),
+                        purchase.getPurchasedAt()
+                ))
+                .collect(Collectors.toList());
     }
 }

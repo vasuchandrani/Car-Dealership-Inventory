@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
         setUser({
           email: decoded.sub,
           role: decoded.role,
+          name: decoded.name || '',
         });
       } else {
         localStorage.removeItem('token');
@@ -53,6 +54,7 @@ export const AuthProvider = ({ children }) => {
         setUser({
           email: decoded.sub,
           role: decoded.role,
+          name: decoded.name || '',
         });
         return { success: true };
       } else {

@@ -68,10 +68,15 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-3">
-                <div className="hidden sm:flex flex-col text-right">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Account</span>
-                  <span className="text-xs font-semibold text-slate-700">{user.email}</span>
-                </div>
+                <Link
+                  to="/profile"
+                  className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 px-4 py-2 rounded-xl text-sm font-semibold transition duration-200 cursor-pointer flex items-center gap-1.5"
+                >
+                  <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Profile
+                </Link>
                 <div className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-wider">
                   {user.role === 'ROLE_ADMIN' ? 'Admin' : 'Customer'}
                 </div>

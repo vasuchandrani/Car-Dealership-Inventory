@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventory/vehicles")
@@ -21,6 +22,13 @@ public class InventoryController {
 
     public InventoryController(InventoryService inventoryService) {
         this.inventoryService = inventoryService;
+    }
+
+    @GetMapping("/purchases")
+    public ResponseEntity<ApiResponse<List<PurchaseResponse>>> getUserPurchases(Principal principal) {
+        List<PurchaseResponse> responseData = inventoryService.getUserPurchases(principal.getName());
+        ApiResponse<List<PurchaseResponse>> apiResponse = ApiResponse.success("Purchases retrieved successfully", responseData);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @PostMapping("/{id}/purchase")

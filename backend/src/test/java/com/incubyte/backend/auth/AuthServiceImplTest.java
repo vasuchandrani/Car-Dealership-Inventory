@@ -86,7 +86,7 @@ class AuthServiceImplTest {
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
-        when(jwtUtil.generateToken(user.getEmail(), user.getRole().name())).thenReturn("jwt.token.here");
+        when(jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getName())).thenReturn("jwt.token.here");
 
         AuthResponse response = authService.login(request);
 
