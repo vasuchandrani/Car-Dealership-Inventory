@@ -1,0 +1,26 @@
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env
+
+# Build outputs
+backend/target/
+frontend/dist/
+
+# Dependencies
+frontend/node_modules/
+backend/node_modules/
+
+# IDE/system files
+.idea/
+.vscode/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
