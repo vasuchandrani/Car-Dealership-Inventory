@@ -1,23 +1,20 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 
 const AdminDashboardPage = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-extrabold text-white">Admin Dashboard</h1>
-          <button
-            onClick={logout}
-            className="bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 cursor-pointer"
-          >
-            Logout
-          </button>
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
+      <Navbar />
+      <div className="max-w-4xl mx-auto w-full px-4 py-12 flex-grow">
+        <header className="mb-8">
+          <h1 className="text-3xl font-black text-slate-900">Admin Control Panel</h1>
+          <p className="text-slate-500">Manage your dealership showroom catalog.</p>
         </header>
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-          <h2 className="text-xl font-bold mb-2">Welcome Admin, {user?.email}</h2>
-          <p className="text-slate-400">Role: {user?.role}</p>
+        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Welcome Admin, {user?.email}</h2>
+          <p className="text-slate-500">Role: <span className="font-semibold text-indigo-600">{user?.role}</span></p>
         </div>
       </div>
     </div>
