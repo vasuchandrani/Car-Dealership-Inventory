@@ -1,23 +1,37 @@
 package com.incubyte.backend.vehicle;
 
 import com.incubyte.backend.common.ResourceNotFoundException;
+import com.incubyte.backend.integrations.cloudinary.CloudinaryService;
 import com.incubyte.backend.vehicle.dto.request.VehicleRequest;
 import com.incubyte.backend.vehicle.dto.response.VehicleResponse;
+import io.jsonwebtoken.io.IOException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
 @Service
+@RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
+    private final CloudinaryService cloudinaryService;
 
-    public VehicleServiceImpl(VehicleRepository vehicleRepository, VehicleMapper vehicleMapper) {
-        this.vehicleRepository = vehicleRepository;
-        this.vehicleMapper = vehicleMapper;
+    private void uploadVehicleImage(Vehicle vehicle, MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return;
+        }
+
+        try {
+            String imageUrl = cloudinaryService.uploadImage(image);
+            vehicle.setImageUrl(imageUrl);
+        } catch (IOException | java.io.IOException e) {
+            throw new RuntimeException("Failed to upload image to Cloudinary", e);
+        }
     }
 
     @Override
@@ -34,14 +48,17 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public VehicleResponse createVehicle(VehicleRequest request) {
+    public VehicleResponse createVehicle(VehicleRequest request, org.springframework.web.multipart.MultipartFile image) {
         Vehicle vehicle = vehicleMapper.toEntity(request);
+
+        uploadVehicleImage(vehicle, image);
+
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toResponse(savedVehicle);
     }
 
     @Override
-    public VehicleResponse updateVehicle(Long id, VehicleRequest request) {
+    public VehicleResponse updateVehicle(Long id, VehicleRequest request, org.springframework.web.multipart.MultipartFile image) {
         Vehicle vehicle = vehicleRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
 
@@ -57,6 +74,8 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle.setEngineCapacity(request.engineCapacity());
         vehicle.setSeatingCapacity(request.seatingCapacity());
         vehicle.setDescription(request.description());
+
+        uploadVehicleImage(vehicle, image);
 
         Vehicle updatedVehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toResponse(updatedVehicle);

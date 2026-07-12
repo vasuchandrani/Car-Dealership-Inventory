@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -107,12 +109,19 @@ class VehicleControllerTest {
                 null, LocalDateTime.now(), LocalDateTime.now()
         );
 
-        when(vehicleService.createVehicle(any(VehicleRequest.class))).thenReturn(response);
+        when(vehicleService.createVehicle(any(VehicleRequest.class), any())).thenReturn(response);
 
-        mockMvc.perform(post("/api/vehicles")
+        MockMultipartFile vehiclePart = new MockMultipartFile(
+                "vehicle",
+                "",
+                "application/json",
+                objectMapper.writeValueAsBytes(request)
+        );
+
+        mockMvc.perform(multipart("/api/vehicles")
+                        .file(vehiclePart)
                         .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.make").value("Toyota"));
@@ -126,10 +135,17 @@ class VehicleControllerTest {
                 2024, "White", "Petrol", "Automatic", "2.5L", 5, "Nice sedan"
         );
 
-        mockMvc.perform(post("/api/vehicles")
+        MockMultipartFile vehiclePart = new MockMultipartFile(
+                "vehicle",
+                "",
+                "application/json",
+                objectMapper.writeValueAsBytes(request)
+        );
+
+        mockMvc.perform(multipart("/api/vehicles")
+                        .file(vehiclePart)
                         .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isForbidden());
     }
 
@@ -146,12 +162,19 @@ class VehicleControllerTest {
                 null, LocalDateTime.now(), LocalDateTime.now()
         );
 
-        when(vehicleService.updateVehicle(eq(1L), any(VehicleRequest.class))).thenReturn(response);
+        when(vehicleService.updateVehicle(eq(1L), any(VehicleRequest.class), any())).thenReturn(response);
 
-        mockMvc.perform(put("/api/vehicles/1")
+        MockMultipartFile vehiclePart = new MockMultipartFile(
+                "vehicle",
+                "",
+                "application/json",
+                objectMapper.writeValueAsBytes(request)
+        );
+
+        mockMvc.perform(multipart(HttpMethod.PUT, "/api/vehicles/1")
+                        .file(vehiclePart)
                         .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.price").value(26000));

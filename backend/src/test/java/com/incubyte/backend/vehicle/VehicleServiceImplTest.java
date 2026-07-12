@@ -30,6 +30,9 @@ class VehicleServiceImplTest {
     @Spy
     private VehicleMapper vehicleMapper = new VehicleMapper();
 
+    @Mock
+    private com.incubyte.backend.integrations.cloudinary.CloudinaryService cloudinaryService;
+
     @InjectMocks
     private VehicleServiceImpl vehicleService;
 
@@ -90,7 +93,7 @@ class VehicleServiceImplTest {
 
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(savedVehicle);
 
-        VehicleResponse result = vehicleService.createVehicle(request);
+        VehicleResponse result = vehicleService.createVehicle(request, null);
 
         assertNotNull(result);
         assertEquals(1L, result.id());
@@ -117,7 +120,7 @@ class VehicleServiceImplTest {
         when(vehicleRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(existingVehicle));
         when(vehicleRepository.save(any(Vehicle.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        VehicleResponse result = vehicleService.updateVehicle(1L, request);
+        VehicleResponse result = vehicleService.updateVehicle(1L, request, null);
 
         assertNotNull(result);
         assertEquals(new BigDecimal("26000"), result.price());
@@ -133,7 +136,7 @@ class VehicleServiceImplTest {
         );
         when(vehicleRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> vehicleService.updateVehicle(1L, request));
+        assertThrows(ResourceNotFoundException.class, () -> vehicleService.updateVehicle(1L, request, null));
     }
 
     @Test

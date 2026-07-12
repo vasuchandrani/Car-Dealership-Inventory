@@ -4,9 +4,11 @@ import com.incubyte.backend.common.ApiResponse;
 import com.incubyte.backend.vehicle.dto.request.VehicleRequest;
 import com.incubyte.backend.vehicle.dto.response.VehicleResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +16,10 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/vehicles")
+@RequiredArgsConstructor
 public class VehicleController {
 
     private final VehicleService vehicleService;
-
-    public VehicleController(VehicleService vehicleService) {
-        this.vehicleService = vehicleService;
-    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<VehicleResponse>>> getAllVehicles(Pageable pageable) {
@@ -50,21 +49,25 @@ public class VehicleController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<VehicleResponse>> createVehicle(@Valid @RequestBody VehicleRequest request) {
-        VehicleResponse vehicle = vehicleService.createVehicle(request);
+    public ResponseEntity<ApiResponse<VehicleResponse>> createVehicle(
+            @RequestPart("vehicle") @Valid VehicleRequest request,
+            @RequestPart(value = "image", required = false) org.springframework.web.multipart.MultipartFile image
+    ) {
+        VehicleResponse vehicle = vehicleService.createVehicle(request, image);
         ApiResponse<VehicleResponse> response = ApiResponse.success("Vehicle created successfully", vehicle);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<VehicleResponse>> updateVehicle(
             @PathVariable Long id,
-            @Valid @RequestBody VehicleRequest request
+            @RequestPart("vehicle") @Valid VehicleRequest request,
+            @RequestPart(value = "image", required = false) org.springframework.web.multipart.MultipartFile image
     ) {
-        VehicleResponse vehicle = vehicleService.updateVehicle(id, request);
+        VehicleResponse vehicle = vehicleService.updateVehicle(id, request, image);
         ApiResponse<VehicleResponse> response = ApiResponse.success("Vehicle updated successfully", vehicle);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
