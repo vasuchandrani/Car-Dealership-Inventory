@@ -109,9 +109,12 @@ public class VehicleServiceImpl implements VehicleService {
             BigDecimal maxPrice,
             Pageable pageable
     ) {
-        String cleanedMake = (make == null || make.trim().isEmpty()) ? null : make;
-        String cleanedModel = (model == null || model.trim().isEmpty()) ? null : model;
-        String cleanedCategory = (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("all")) ? null : category;
+        // Never pass null for string params — PostgreSQL/Hibernate binds null as bytea,
+        // which breaks lower(bytea). Use empty string for LIKE (matches everything)
+        // and "all" for category (query checks :category = 'all' to skip filter).
+        String cleanedMake = (make == null || make.trim().isEmpty()) ? "" : make.trim();
+        String cleanedModel = (model == null || model.trim().isEmpty()) ? "" : model.trim();
+        String cleanedCategory = (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("all")) ? "all" : category.trim();
 
         return vehicleRepository.searchVehicles(cleanedMake, cleanedModel, cleanedCategory, minPrice, maxPrice, pageable)
                 .map(vehicleMapper::toResponse);
