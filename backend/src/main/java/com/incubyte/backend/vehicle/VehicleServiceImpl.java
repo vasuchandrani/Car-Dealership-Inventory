@@ -4,15 +4,19 @@ import com.incubyte.backend.common.ResourceNotFoundException;
 import com.incubyte.backend.integrations.cloudinary.CloudinaryService;
 import com.incubyte.backend.vehicle.dto.request.VehicleRequest;
 import com.incubyte.backend.vehicle.dto.response.VehicleResponse;
-import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
+/**
+ * Service implementation for managing vehicle inventory.
+ * Business logic for CRUD operations, soft delete, and dynamic search.
+ */
 @Service
 @RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
@@ -21,6 +25,12 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleMapper vehicleMapper;
     private final CloudinaryService cloudinaryService;
 
+    /**
+     * Uploads the vehicle image file to Cloudinary if it is present and sets the image URL.
+     *
+     * @param vehicle the vehicle entity to associate the image with
+     * @param image   the optional multipart image file
+     */
     private void uploadVehicleImage(Vehicle vehicle, MultipartFile image) {
         if (image == null || image.isEmpty()) {
             return;
@@ -29,7 +39,7 @@ public class VehicleServiceImpl implements VehicleService {
         try {
             String imageUrl = cloudinaryService.uploadImage(image);
             vehicle.setImageUrl(imageUrl);
-        } catch (IOException | java.io.IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Failed to upload image to Cloudinary", e);
         }
     }
@@ -48,7 +58,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public VehicleResponse createVehicle(VehicleRequest request, org.springframework.web.multipart.MultipartFile image) {
+    public VehicleResponse createVehicle(VehicleRequest request, MultipartFile image) {
         Vehicle vehicle = vehicleMapper.toEntity(request);
 
         uploadVehicleImage(vehicle, image);
@@ -58,7 +68,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public VehicleResponse updateVehicle(Long id, VehicleRequest request, org.springframework.web.multipart.MultipartFile image) {
+    public VehicleResponse updateVehicle(Long id, VehicleRequest request, MultipartFile image) {
         Vehicle vehicle = vehicleRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
 
