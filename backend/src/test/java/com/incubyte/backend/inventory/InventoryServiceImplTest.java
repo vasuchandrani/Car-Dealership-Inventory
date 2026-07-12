@@ -91,9 +91,16 @@ class InventoryServiceImplTest {
                 .isDeleted(false)
                 .build();
 
+        User user = User.builder()
+                .id(1L)
+                .email("user@example.com")
+                .build();
+
         PurchaseRequest request = new PurchaseRequest(1, "order_123", "pay_123", "valid_sig");
 
         when(vehicleRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(vehicle));
+        when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
+        when(razorpayService.verifyPaymentSignature(any(VerifyPaymentRequest.class))).thenReturn(true);
 
         assertThrows(BadRequestException.class, () ->
                 inventoryService.purchaseVehicle(1L, request, "user@example.com"));
