@@ -8,6 +8,13 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 const DashboardPage = () => {
   const { user } = useAuth();
+
+  const formattedPrice = (price) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(price);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
