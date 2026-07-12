@@ -53,6 +53,7 @@ CARPORT is a premium, modern, and secure Car Dealership Inventory Management Sys
 ### Protected Inventory Endpoints (Requires Authorization Token header)
 *   `POST /api/inventory/vehicles/{id}/purchase`: Purchase units of a vehicle using Razorpay checkout parameters.
 *   `POST /api/inventory/vehicles/{id}/restock`: Restock quantities of a vehicle (Admin only).
+*   `GET /api/inventory/vehicles/purchases`: Retrieve purchase history list of the logged-in user.
 
 ---
 
@@ -77,7 +78,7 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 ```
-*Note: If `RAZORPAY_KEY_SECRET` is left blank, the application automatically launches in safe fallback mockup mode.*
+
 
 #### 3. Compile and Run
 Open your terminal in the `backend/` directory and run:
@@ -110,9 +111,17 @@ npm run dev
 
 The application runs on `http://localhost:5173`.
 
-*Default Admin Credentials for testing:*
+---
+
+## Test Credentials
+
+### Admin Account
 *   **Email**: `admin@cardealership.com`
 *   **Password**: `admin123`
+
+### Customer / User Account
+*   **Email**: `user@gmail.com`
+*   **Password**: `user@123`
 
 ---
 
@@ -137,21 +146,18 @@ To run tests in the `backend/` directory, run:
 
 ## Screenshots
 
-### 1. Showroom Landing Page (Premium Light Theme)
-![Landing Page](./screenshots/showroom_landing.png)
-
-*(Note: To preview screenshots in your workspace, please ensure you place your application screenshots inside a root `/screenshots/` directory when uploading to your public repository).*
+For screenshots of the web application, please refer to the `screenshots/` folder in the root of the repository.
 
 ---
 
 ## My AI Usage
 
 ### 1. AI Tools Used
-*   **Claude (Anthropic)**: Used for initial structural analysis, requirement mapping, system architecture definitions, and establishing the chronological Step-by-Step Implementation Plan.
+*   **Claude (Anthropic)**: Used to translate my custom system design and architecture specifications into a detailed, chronological Step-by-Step Implementation Plan.
 *   **Gemini (Google DeepMind)**: Used as the coding agent to execute the implementation plan sequentially, write JUnit tests, write controller/service endpoints, structure React hooks, refactor layouts to a clean light theme, and prepare deployment files.
 
 ### 2. How They Were Used
-*   **Claude**: I described the assessment objectives and requirements to Claude, asking it to partition the tasks cleanly. It generated a 28-step plan (from setting up database schemas to payment verifications and production bundles).
+*   **Claude**: First, I mapped out the overall system architecture, database schema relationships, and Razorpay payment workflow. I then explained this custom design and objectives to Claude, asking it to parse the requirements and generate a detailed 28-step implementation plan (spanning from database setup to security configurations, test boundaries, and final production builds).
 *   **Gemini**: I directed Gemini to follow the plan step-by-step. For each component (Authentication, Vehicle, Purchase layers), I requested Gemini to first write the unit tests (Red phase), run tests (verifying failure), write the implementation (Green phase), and refactor files for cleanliness. Gemini also handled CORS, PostCSS Tailwind imports, and mock signature bypasses for development.
 
 ### 3. Reflections on Workflow
@@ -167,3 +173,4 @@ In future updates, the following features and improvements are planned:
 3.  **Distributed Lock (Redis)**: Utilizing Redis-based transaction locks to prevent concurrency race conditions when multiple users try to buy the last remaining stock of a vehicle at the exact same millisecond.
 4.  **Multiple Vehicle Images**: Expanding the database schema and Cloudinary vault to support multiple photos (interior, engine, dashboard, trunk) per vehicle.
 5.  **Image Cleanups on Update**: Automatically invoking the Cloudinary API to delete the previous image asset from storage when an Admin updates or replaces a vehicle image.
+6.  **Caching Strategy**: Implementing caching (e.g. using Spring Cache with Redis or Caffeine cache) to cache vehicle catalog listings and search results. Since vehicle parameters do not change frequently, caching these lists will significantly reduce database read operations and lower response latency.
