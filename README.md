@@ -36,6 +36,26 @@ CARPORT is a premium, modern, and secure Car Dealership Inventory Management Sys
 
 ---
 
+## API Endpoints Reference
+
+### Public Endpoints
+*   `GET /health`: Returns application operational status (used for uptime checkers).
+*   `POST /api/auth/register`: Create a new user profile.
+*   `POST /api/auth/login`: Authenticate credentials and receive a JWT authorization token.
+
+### Protected Vehicles Endpoints (Requires Authorization Token header)
+*   `GET /api/vehicles`: Paginated listing of available vehicles.
+*   `GET /api/vehicles/search`: Search and filter catalog listings.
+*   `POST /api/vehicles`: Add a new vehicle record (Admin only).
+*   `PUT /api/vehicles/{id}`: Modify details of an existing vehicle (Admin only).
+*   `DELETE /api/vehicles/{id}`: Soft delete an existing vehicle (Admin only).
+
+### Protected Inventory Endpoints (Requires Authorization Token header)
+*   `POST /api/inventory/vehicles/{id}/purchase`: Purchase units of a vehicle using Razorpay checkout parameters.
+*   `POST /api/inventory/vehicles/{id}/restock`: Restock quantities of a vehicle (Admin only).
+
+---
+
 ## Local Setup & Running Instructions
 
 ### Backend (Spring Boot)
@@ -106,8 +126,8 @@ To run tests in the `backend/` directory, run:
 ```
 
 ### Test Suite Execution Summary:
-*   **Total Tests Executed**: 41
-*   **Passed**: 41
+*   **Total Tests Executed**: 42
+*   **Passed**: 42
 *   **Failures**: 0
 *   **Errors**: 0
 *   **Skipped**: 0
