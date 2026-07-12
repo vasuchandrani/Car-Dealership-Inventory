@@ -171,4 +171,30 @@ class VehicleControllerTest {
 
         verify(vehicleService, times(1)).deleteVehicle(1L);
     }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ROLE_USER"})
+    void searchVehicles_success() throws Exception {
+        Pageable pageable = PageRequest.of(0, 20);
+        VehicleResponse response = new VehicleResponse(
+                1L, "Honda", "Civic", "Sedan", new BigDecimal("20000"), 5,
+                2024, "Blue", "Petrol", "Manual", "2.0L", 5, "Sporty sedan",
+                null, LocalDateTime.now(), LocalDateTime.now()
+        );
+        Page<VehicleResponse> page = new PageImpl<>(Collections.singletonList(response), pageable, 1);
+
+        when(vehicleService.searchVehicles(eq("Honda"), eq("Civic"), eq("Sedan"), any(), any(), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/vehicles/search")
+                        .param("make", "Honda")
+                        .param("model", "Civic")
+                        .param("category", "Sedan")
+                        .param("page", "0")
+                        .param("size", "20")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.content[0].make").value("Honda"));
+    }
 }

@@ -158,4 +158,20 @@ class VehicleServiceImplTest {
 
         assertThrows(ResourceNotFoundException.class, () -> vehicleService.deleteVehicle(1L));
     }
+
+    @Test
+    void searchVehicles_returnsFilteredList() {
+        Pageable pageable = PageRequest.of(0, 20);
+        Vehicle vehicle = Vehicle.builder().id(1L).make("Honda").model("Civic").category("Sedan").isDeleted(false).build();
+        Page<Vehicle> vehiclePage = new PageImpl<>(Collections.singletonList(vehicle), pageable, 1);
+
+        when(vehicleRepository.searchVehicles(eq("Honda"), eq("Civic"), eq("Sedan"), any(), any(), eq(pageable)))
+                .thenReturn(vehiclePage);
+
+        Page<VehicleResponse> result = vehicleService.searchVehicles("Honda", "Civic", "Sedan", null, null, pageable);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Honda", result.getContent().get(0).make());
+    }
 }

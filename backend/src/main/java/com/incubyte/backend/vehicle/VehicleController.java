@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -25,6 +26,20 @@ public class VehicleController {
     public ResponseEntity<ApiResponse<Page<VehicleResponse>>> getAllVehicles(Pageable pageable) {
         Page<VehicleResponse> vehicles = vehicleService.getAllVehicles(pageable);
         ApiResponse<Page<VehicleResponse>> response = ApiResponse.success("Vehicles retrieved successfully", vehicles);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<VehicleResponse>>> searchVehicles(
+            @RequestParam(required = false) String make,
+            @RequestParam(required = false) String model,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            Pageable pageable
+    ) {
+        Page<VehicleResponse> vehicles = vehicleService.searchVehicles(make, model, category, minPrice, maxPrice, pageable);
+        ApiResponse<Page<VehicleResponse>> response = ApiResponse.success("Search results retrieved successfully", vehicles);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
