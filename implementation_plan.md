@@ -830,20 +830,41 @@ Co-authored-by: AI Code Assistant <ai@example>
 
 ---
 
-#### Step 14 — Cloudinary image upload
+#### Step 14A — Cloudinary image upload
 **What:** Set up Cloudinary integration in `integrations/cloudinary/` package. Add image upload to vehicle create/update endpoints.
 
 **Files:**
 - `backend/.../integrations/cloudinary/CloudinaryConfig.java` — Reads env vars, creates Cloudinary bean
 - `backend/.../integrations/cloudinary/CloudinaryService.java` — Interface
 - `backend/.../integrations/cloudinary/CloudinaryServiceImpl.java` — Upload, delete image methods
-- `backend/.../integrations/razorpay/RazorpayConfig.java` — Placeholder config (reads env vars)
 - `backend/.../vehicle/VehicleServiceImpl.java` — Injects CloudinaryService for image upload
 - `backend/.../vehicle/VehicleController.java` — Accept multipart file
 
 **Commit:**
 ```
 feat: integrate cloudinary for vehicle image upload
+
+Co-authored-by: AI Code Assistant <ai@example>
+```
+
+---
+
+#### Step 14B — Razorpay payment integration
+**What:** Set up Razorpay integration in `integrations/razorpay/` package. Allow order creation and signature verification.
+
+**Files:**
+- `backend/.../integrations/razorpay/RazorpayConfig.java` — Reads env vars
+- `backend/.../integrations/razorpay/RazorpayService.java` — Interface
+- `backend/.../integrations/razorpay/RazorpayServiceImpl.java` — Create order, verify signature methods
+- `backend/.../integrations/razorpay/dto/request/OrderRequest.java` — Request DTO
+- `backend/.../integrations/razorpay/dto/request/VerifyPaymentRequest.java` — Request DTO
+- `backend/.../integrations/razorpay/dto/response/OrderResponse.java` — Response DTO
+- `backend/.../integrations/razorpay/RazorpayController.java` — Order/Verify endpoints
+- `backend/.../integrations/razorpay/RazorpayControllerTest.java` — Integration tests
+
+**Commit:**
+```
+feat: add razorpay payment order creation and signature verification
 
 Co-authored-by: AI Code Assistant <ai@example>
 ```
@@ -1137,7 +1158,8 @@ Co-authored-by: AI Code Assistant <ai@example>
 | 11 | `feat` | implement vehicle service with CRUD operations | Vehicle |
 | 12 | `feat` | add vehicle controller with CRUD endpoints | Vehicle |
 | 13 | `feat` | add vehicle search with filters | Vehicle |
-| 14 | `feat` | integrate cloudinary for vehicle image upload | Vehicle |
+| 14A | `feat` | integrate cloudinary for vehicle image upload | Vehicle |
+| 14B | `feat` | add razorpay payment order creation and signature verification | Vehicle |
 | 15 | `refactor` | clean up vehicle layer | Vehicle |
 | 16 | `feat` | add Purchase entity and repository | Inventory |
 | 17 | `test` | add inventory service tests | Inventory |
@@ -1153,3 +1175,21 @@ Co-authored-by: AI Code Assistant <ai@example>
 | 27 | `docs` | add README with setup instructions and AI usage | Docs |
 | 28 | `feat` | add paginated infinite scroll for vehicle listing | Final |
 
+## 15. Git Rules
+
+> [!CAUTION]
+> **I will NOT commit or push anything without your explicit permission.** At each step, I will:
+> 1. Complete the implementation
+> 2. Show you what's ready
+> 3. Ask for your approval to commit
+> 4. Only then run `git add` + `git commit`
+> 5. Ask before pushing
+
+Every commit includes:
+```
+<type>: <short description>
+
+Co-authored-by: AI Code Assistant <ai@example.invalid>
+```
+
+**Types:** `chore`, `feat`, `test`, `refactor`, `docs`, `fix`
