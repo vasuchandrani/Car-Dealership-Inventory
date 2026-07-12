@@ -109,7 +109,11 @@ public class VehicleServiceImpl implements VehicleService {
             BigDecimal maxPrice,
             Pageable pageable
     ) {
-        return vehicleRepository.searchVehicles(make, model, category, minPrice, maxPrice, pageable)
+        String cleanedMake = (make == null || make.trim().isEmpty()) ? null : make;
+        String cleanedModel = (model == null || model.trim().isEmpty()) ? null : model;
+        String cleanedCategory = (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("all")) ? null : category;
+
+        return vehicleRepository.searchVehicles(cleanedMake, cleanedModel, cleanedCategory, minPrice, maxPrice, pageable)
                 .map(vehicleMapper::toResponse);
     }
 }
