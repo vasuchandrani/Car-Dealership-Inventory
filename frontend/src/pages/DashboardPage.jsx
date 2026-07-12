@@ -130,7 +130,7 @@ const DashboardPage = () => {
         throw new Error(orderData.message || 'Failed to generate payment order');
       }
 
-      const { id: orderId, keyId, amount, currency } = orderData.data;
+      const { orderId, keyId, amount, currency } = orderData.data;
 
       // 2. Decide if mock environment or real Razorpay flow
       if (keyId === 'dummy_key' || !keyId) {
@@ -170,7 +170,13 @@ const DashboardPage = () => {
         rzp.open();
       }
     } catch (err) {
-      setPaymentError(err.response?.data?.message || err.message || 'Payment initiation failed');
+      console.error('Payment error:', err.response?.data);
+      const data = err.response?.data;
+      let errorMsg = data?.message || err.message || 'Payment initiation failed';
+      if (data?.errors && typeof data.errors === 'object') {
+        errorMsg += ': ' + Object.entries(data.errors).map(([k, v]) => `${k} (${v})`).join(', ');
+      }
+      setPaymentError(errorMsg);
     } finally {
       setPaymentLoading(false);
     }
@@ -200,7 +206,13 @@ const DashboardPage = () => {
         setPaymentError(purchaseData.message || 'Verification and purchase failed');
       }
     } catch (err) {
-      setPaymentError(err.response?.data?.message || 'Error executing purchase confirmation');
+      console.error('Purchase error:', err.response?.data);
+      const data = err.response?.data;
+      let errorMsg = data?.message || 'Error executing purchase confirmation';
+      if (data?.errors && typeof data.errors === 'object') {
+        errorMsg += ': ' + Object.entries(data.errors).map(([k, v]) => `${k} (${v})`).join(', ');
+      }
+      setPaymentError(errorMsg);
     } finally {
       setPaymentLoading(false);
     }
