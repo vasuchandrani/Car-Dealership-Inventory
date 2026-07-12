@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import VehicleCard from '../components/VehicleCard';
 import { vehicleApi } from '../api/vehicleApi';
 import apiClient from '../api/apiClient';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -425,9 +426,8 @@ const DashboardPage = () => {
 
         {/* Loading Spinner */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24">
-            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-slate-500 text-sm font-semibold">Loading showroom collection...</p>
+          <div className="py-24">
+            <LoadingSpinner message="Loading showroom collection..." />
           </div>
         ) : vehicles.length === 0 ? (
           <div className="bg-white border border-slate-200/80 rounded-3xl p-16 text-center shadow-sm max-w-lg mx-auto mt-6">
